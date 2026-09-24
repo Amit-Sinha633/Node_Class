@@ -105,4 +105,35 @@ const logInUser = async (req, res) => {
     });
   }
 };
-export { registerUser, logInUser };
+const logOutUser = async(req,res) =>{
+  try {
+    const user = await User.findByIdAndUpdate(
+      {_id: req.user},
+      {refreshToken: null},
+      {
+        new: true,
+        returnDocument: "after"
+      }
+    )
+
+    const options = {
+      httpOnly: true,
+      secure: true
+    }
+
+    return res.status(200)
+    .cookie("accessToken",undefined,options)
+    .cookie("refreshToken",undefined,options)
+    .json({
+      msg : "User logOut Successfully",
+      data : user
+    })
+  } catch (error) {
+    return res.status(500)
+    .json({
+      msg : "Something went wrong while logOut the user"
+    })
+  }
+}
+
+export { registerUser, logInUser,logOutUser }
